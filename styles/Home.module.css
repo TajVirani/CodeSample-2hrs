@@ -1,11 +1,11 @@
 .container {
-  min-height: 99vh;
   padding: 0 0.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  margin: 0 auto;
+}
+
+.header {
+  height: 50px;
+  margin-top: 10px;
 }
 
 .main {
@@ -111,6 +111,11 @@
 .logo {
   height: 1em;
   margin-left: 0.5rem;
+}
+
+.input {
+  padding: 5px 10px;
+  border: 1px solid gray;
 }
 
 @media (max-width: 600px) {
