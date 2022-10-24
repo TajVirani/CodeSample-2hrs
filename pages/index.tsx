@@ -1,14 +1,37 @@
-import Head from "next/head";
-import React from "react";
+import React, { useState } from "react";
 import styles from "../styles/Home.module.css";
-import nextPackage from "next/package.json";
 import { useForm } from "react-hook-form";
+import { useLazyQuery, gql } from "@apollo/client";
+
+const QUERY = gql`
+query GET_TAGS($name: String) {
+  tags(where: { name: { contains: $name }}) {
+    id
+   	name
+    texts {
+      id
+      longName
+      abbreviation
+      description
+    }
+  }
+}
+`
 
 export default function Home({}) {
-
+  const [textDisplay, setTextDisplay] = useState([]);
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const [searchData, { loading, data }] = useLazyQuery(QUERY);
 
-  const onSubmit = data => console.log(data);
+  const onSubmit = async (data) => {
+      const {tag} = data;
+      try {
+        searchData({ variables: { name: tag } });
+      } catch (err) {
+        console.log(err);
+      }
+  };
+
 
   return (
     <div className={styles.container}>
@@ -52,6 +75,37 @@ export default function Home({}) {
           </button>
         </div>
     </form>
+
+    <div className="overflow-hidden bg-white shadow sm:rounded-lg">
+      <div className="px-4 py-5 sm:px-6">
+        <h3 className="text-lg font-medium leading-6 text-gray-900">Returned Text</h3>
+      </div>
+      <div className="border-t border-gray-200">
+      {data ? data[0].texts.map((item) => (
+        <dl>
+          <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">ID</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{item.id}</dd>
+          </div>
+          <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">longName</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{item.longName}</dd>
+          </div>
+          <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">abbreviation</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{item.abbreviation}</dd>
+          </div>
+          <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">description</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{item.description}</dd>
+          </div>
+        </dl>
+      )
+      ) : <h3>No queried data.</h3>
+      }
+
+      </div>
+      </div>
     </main>
     </div>
   );
